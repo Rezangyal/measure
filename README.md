@@ -1,9 +1,7 @@
 # C++ measure
 
-> [!WARNING]
-> Work in progress!
-
 Old school header only measure library based on std::chrono and RDTSC instruction.
+You can choose thread or recursion safe implementation.
 
 Optionally QureryPerformanceCounter support (MSVC only).
 
@@ -29,8 +27,12 @@ uint64_t MyFunction()
     // or MEASURE_S("title+with-special characters");
 
     volatile uint64_t sum = 0;
-    for (uint64_t i = 0; i < 1llu << 18; ++i)
+    for (uint64_t i = 0; i < 123456; ++i)
+    {
+        MEASURE(Loop);
+        // or RDTSC_MEASURE(Loop); if the precision is important
         sum += i;
+    }
     return sum;
 }
 
@@ -43,9 +45,11 @@ int main()
 }
 
 output:
-------------------------------------------- cpp times --------------------------------------------
-                             MyFunction:           1 call=   2.654100 ms   /call=   2.654100 ms
---------------------------------------------------------------------------------------------------
+------------------------------------- cpp times --------------------------------------
+                                    Name       Calls       Total (ns)     Average (ns)
+--------------------------------------------------------------------------------------
+                              MyFunction           1        4'294'900        4'294'900
+                                    Loop      123456        2'137'100               17
 ```
 
 
