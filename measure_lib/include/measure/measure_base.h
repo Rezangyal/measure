@@ -118,11 +118,18 @@ namespace dtree
         // find MeasureRecord by name, slow
         static MeasureRecord* FindMeasureRecord(const char* name);
 
-        // print report at the end of program
-        static void PrintReport(double frequencyMeasureTimeSeconds = 1.0);
+        // print report at the end of program in human readable format
+        static void PrintReport(std::ostream& os = std::cout);
+        static void PrintReport(std::string fileName);
 
         // set all numCall and totalClock to 0. this can be useful if you want to print more than one report
         static void ResetAll();
+
+        // get measure records, it's usefull if you want a custom report
+        static std::vector<MeasureRecord*>& GetRecords()    { return Instance()->records; }
+
+        // you must use this if you work with the measure records in a multithread environment
+        static std::mutex& GetMutex()                       { return Instance()->mutex; }
 
     private:
 
@@ -363,6 +370,7 @@ template<typename MeasureRecord>
 auto dtree::MeasureDatabase<MeasureRecord>::FindMeasureRecord(const char* name) -> MeasureRecord*
 {
 #if MEASURE_IS_ON
+    const std::lock_guard<std::mutex> lock(Instance()->mutex);
     for (MeasureRecord* mr : Instance()->records)
         if (mr->name == name)
             return mr;
@@ -371,51 +379,59 @@ auto dtree::MeasureDatabase<MeasureRecord>::FindMeasureRecord(const char* name) 
 }
 
 template<typename MeasureRecord>
-void dtree::MeasureDatabase<MeasureRecord>::PrintReport(double frequencyMeasureTimeSeconds)
+void dtree::MeasureDatabase<MeasureRecord>::PrintReport(std::ostream& os)
 {
 #if MEASURE_IS_ON
     using namespace std;
+    const lock_guard<std::mutex> lock(Instance()->mutex);
 
-    if (!Instance()->records.empty())
+    auto records = Instance()->records;
+    if (!records.empty())
     {
-        //const uint64_t freq = MeasureUtils::GetProcessorFrequency(frequencyMeasureTimeSeconds);
-        //cout << " freq: " << setw(8) << setprecision(6) << double(freq) / 1000000.0 << " MHz\n";
         constexpr size_t width = 86;
         const char* title = MeasureRecord::MeasureBackend::GetMeasureTitle();
         const size_t titleLen = strlen(title);
 
         const std::string pad((width-titleLen)/2 - 1, '-');
-        cout << pad << " " << title << " " << pad << (titleLen%2?"-":"") << "\n";
+        os << pad << " " << title << " " << pad << (titleLen%2?"-":"") << "\n";
 
-        cout<< setw(40) << "Name"
+        os  << setw(40) << "Name"
             << setw(12) << "Calls"
             << setw(17) << "Total (ns)"
             << setw(17) << "Average (ns)"
             << "\n";
-        cout << std::string(width, '-') << std::endl;
-        for (MeasureRecord* measureRecord : Instance()->records)
+        os << std::string(width, '-') << std::endl;
+        for (MeasureRecord* measureRecord : records)
         {
             const double totalSec = measureRecord->GetTotalSec();
             if (totalSec < 0 || measureRecord->numCall == 0)
-                cout<< setw(40) << measureRecord->name
+                os  << setw(40) << measureRecord->name
                     << setw(12) << measureRecord->numCall
                     << "\n";
             else
-                cout<< setw(40) << measureRecord->name
+                os  << setw(40) << measureRecord->name
                     << setw(12) << measureRecord->numCall
                     << setw(17) << MeasureUtils::TimeToStrNs(totalSec)
                     << setw(17) << MeasureUtils::TimeToStrNs(totalSec / double(measureRecord->numCall))
                     << "\n";
         }
-        cout << std::string(width, '-') << std::endl;
+        os << std::string(width, '-') << std::endl;
     }
 #endif
+}
+
+template<typename MeasureRecord>
+void dtree::MeasureDatabase<MeasureRecord>::PrintReport(std::string fileName)
+{
+    std::ofstream ofs(fileName);
+    PrintReport(ofs);
 }
 
 template<typename MeasureRecord>
 void dtree::MeasureDatabase<MeasureRecord>::ResetAll()
 {
 #if MEASURE_IS_ON
+    const std::lock_guard<std::mutex> lock(Instance()->mutex);
     for (MeasureRecord* mr : Instance()->records)
     {
         mr->numCall = 0;

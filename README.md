@@ -1,9 +1,11 @@
 # C++ measure
 
-Old school header only measure library based on std::chrono and RDTSC instruction.
+Header only measure library based on std::chrono and RDTSC instruction.
 You can choose thread or recursion safe implementation.
+Human readable or csv reporting is available.
 
 Optionally QureryPerformanceCounter support (MSVC only).
+Additional backends and reporters can be defined.
 
 Easy to use, high precision, can work in the live environment.
 

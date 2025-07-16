@@ -6,6 +6,7 @@
 #include "measure/cpp_measure.h"
 #include "measure/rdtsc_measure.h"
 #include "measure/measure.h"
+#include "measure/csv_reporter.h"
 #include <iostream>
 #include <string>
 #include <chrono>
@@ -230,6 +231,8 @@ int main()
 #if MEASURE_WINDOWS
     dtree::QPCMeasure::Database::PrintReport();
 #endif
+
+    dtree::CsvReport<dtree::Measure::Database>(std::cout);
 
     cout << "test Ok.\n";
     return 0;
