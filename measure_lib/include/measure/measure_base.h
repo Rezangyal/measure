@@ -12,6 +12,7 @@
 #include <string>
 #include <cstring>
 #include <map>
+#include <fstream>
 
 #include "measure/measure_utils.h"
 
