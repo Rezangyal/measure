@@ -45,8 +45,9 @@ int main()
     dtree::PrintMeasure();
     return 0;
 }
-
+```
 output:
+```
 ------------------------------------- cpp times --------------------------------------
                                     Name       Calls       Total (ns)     Average (ns)
 --------------------------------------------------------------------------------------
@@ -57,7 +58,7 @@ output:
 
 ### Recursive function
 If your function is recursive and/or called from a multithread environment you must use an other form
-```
+``` c++
 void MyFunction()
 {
     // the second parameter:
@@ -69,7 +70,7 @@ void MyFunction()
 }
 ```
 or the same in expanded form
-```
+``` c++
 void MyFunction()
 {
     // the "static" is important!
@@ -83,7 +84,7 @@ void MyFunction()
 
 ### Dynamic title
 If the measurement title is dynamically generated then the expanded form is always recommended
-```
+``` c++
 void MyFunction(int i)
 {
     // GetDynamicRecord is very slow, don't call it from time critical code!
@@ -106,7 +107,7 @@ the default is the `CppMeasure`, which based on `std::chrono::high_resolution_cl
 This is based on `std::chrono::high_resolution_clock` and it is available in any c++11 compiler.
 As you can see in `measure.h`, this is the default measure technology,
 but you can use the CppMeasure functions explicitly if you want:
-```
+``` c++
 void MyFunction()
 {
     CPP_MEASURE(MyFunctionTime);
@@ -114,7 +115,7 @@ void MyFunction()
 }
 ```
 or
-```
+``` c++
 void MyFunction()
 {
     static dtree::CppMeasure::TRSafe::MeasureRecord record("Measure with scope");
@@ -130,7 +131,7 @@ This is the lowest level measurement service,
 based on the `Read Time-Stamp Counter` instruction of the processor,
 with a typical frequency of 2-4 Ghz.
 This is the fastest option, but only available in x86/x64 platform.
-```
+``` c++
 void MyFunction()
 {
     RDTSC_MEASURE(MyFunctionTime);
@@ -138,7 +139,7 @@ void MyFunction()
 }
 ```
 or
-```
+``` c++
 void MyFunction()
 {
     static dtree::RdtscMeasure::TRSafe::MeasureRecord record("Measure with scope");
@@ -153,7 +154,7 @@ void MyFunction()
 If you are using Visual Studio, you can use `QPCMeasure`,
 which is based on `QueryPerformanceCounter` and `QueryPerformanceFrequency`.
 The typical frequency of the QPC is 10 Mhz. Every function has a QPC equivalent:
-```
+``` c++
 void MyFunction()
 {
     QPC_MEASURE(MyFunctionTime);
@@ -162,7 +163,7 @@ void MyFunction()
 }
 ```
 or
-```
+``` c++
 void MyFunction()
 {
     static dtree::QPCMeasure::TRSafe::MeasureRecord record("Measure with scope");
