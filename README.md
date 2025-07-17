@@ -21,7 +21,7 @@ MIT License, see LICENSE.txt
 ## Usage
 
 ### Basic usage
-```
+``` c++
 #include "measure/measure.h"
 uint64_t MyFunction()
 {
